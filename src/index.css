@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gray-50: #f9f9fb;
+  --color-gray-100: #ededf0;
+  --color-gray-200: #e0e0e5;
+  --color-gray-300: #aeaeB2;
+  --color-gray-400: #8e8e93;
+  --color-gray-500: #636366;
+  --color-gray-600: #48484a;
+  --color-gray-700: #2c2c2e;
+  --color-gray-800: #141416;
+  --color-gray-900: #0a0a0b;
+  --color-gray-950: #040405;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* Smooth transitions */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #374151 transparent;
+}
+
+/* Select styling for dark mode */
+select option {
+  background: #1f2937;
+  color: white;
+}
+
+/* Date input styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* Number input - hide spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}

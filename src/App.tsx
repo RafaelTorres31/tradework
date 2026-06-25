@@ -3,7 +3,8 @@ import { User, Trade, RiskManagement, Academy } from './types';
 import {
   getCurrentUser, logout, getUserTrades, addTrade, updateTrade,
   deleteTrade, getTradesByDate, initializeStore,
-  getAllUsers, getAllAcademies
+  getAllUsers, getAllAcademies,
+  getRiskPlansStore, saveRiskPlanStore, deleteRiskPlanStore
 } from './store';
 import Login from './components/Login';
 import Sidebar from './components/Sidebar';
@@ -18,17 +19,7 @@ import DayDetail from './components/DayDetail';
 
 type Page = 'dashboard' | 'calendar' | 'risk' | 'calculator' | 'stats' | 'admin';
 
-const RISK_KEY = 'tj_risk_plans';
-
-// Helpers para gestión de riesgo (localStorage)
-function getRiskPlans(): RiskManagement[] {
-  const data = localStorage.getItem(RISK_KEY);
-  return data ? JSON.parse(data) : [];
-}
-
-function saveRiskPlans(plans: RiskManagement[]) {
-  localStorage.setItem(RISK_KEY, JSON.stringify(plans));
-}
+// Los planes de riesgo ahora se gestionan a través del store asíncrono
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -67,7 +58,11 @@ export default function App() {
 
   // Load risk plans
   useEffect(() => {
-    setRiskPlans(getRiskPlans());
+    const loadRiskPlans = async () => {
+      const plans = await getRiskPlansStore();
+      setRiskPlans(plans);
+    };
+    loadRiskPlans();
   }, []);
 
   // Load all users and academies for admin/mentor
@@ -221,7 +216,7 @@ export default function App() {
   };
 
   // Risk management handlers
-  const handleSaveRiskPlan = (plan: RiskManagement) => {
+  const handleSaveRiskPlan = async (plan: RiskManagement) => {
     const planWithAcademy: RiskManagement = {
       ...plan,
       academyId: user?.role === 'mentor' ? user.academyId : plan.academyId,
@@ -233,14 +228,23 @@ export default function App() {
     const updated = existingIndex >= 0
       ? riskPlans.map(p => p.id === plan.id ? planWithAcademy : p)
       : [...riskPlans, planWithAcademy];
+    
     setRiskPlans(updated);
-    saveRiskPlans(updated);
+    try {
+      await saveRiskPlanStore(planWithAcademy);
+    } catch (err) {
+      console.error('Error al guardar plan de riesgo:', err);
+    }
   };
 
-  const handleDeleteRiskPlan = (planId: string) => {
+  const handleDeleteRiskPlan = async (planId: string) => {
     const updated = riskPlans.filter(p => p.id !== planId);
     setRiskPlans(updated);
-    saveRiskPlans(updated);
+    try {
+      await deleteRiskPlanStore(planId);
+    } catch (err) {
+      console.error('Error al eliminar plan de riesgo:', err);
+    }
   };
 
   if (!user) {
